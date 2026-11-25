@@ -1,0 +1,474 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #020205;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: monospace;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    touch-action: none;
+}
+
+#ui {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    color: #00ffff;
+    font-size: clamp(12px, 1.5vw, 18px);
+    text-shadow: 2px 2px #000;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 10;
+    max-width: calc(100vw - 32px);
+}
+
+#level-bang-hud {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    display: none;
+    background: rgba(60, 0, 0, 0.88);
+    border: 2px solid #ff2222;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.55);
+    color: #ff4444;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: clamp(11px, 1.3vw, 15px);
+    font-weight: bold;
+    text-align: right;
+    pointer-events: none;
+    z-index: 15;
+}
+
+#gamepad-badge {
+    position: absolute;
+    bottom: 14px;
+    left: 16px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 15;
+    display: none;
+}
+
+#exit-status-toast {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 0, 0, 0.9);
+    border: 2px solid #ff3333;
+    color: #ff6666;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: clamp(13px, 1.6vw, 16px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    display: none;
+    pointer-events: none;
+    z-index: 25;
+    text-shadow: 1px 1px #000;
+    text-align: center;
+    max-width: 90vw;
+}
+
+#state-display {
+    position: absolute;
+    top: 42px;
+    left: 16px;
+    color: #ffaa00;
+    font-size: clamp(11px, 1.3vw, 15px);
+    font-weight: bold;
+    text-shadow: 1px 1px #000;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border: 2px solid rgba(0, 255, 255, 0.7);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Evade-Inspired Tablet / Touch Controls */
+#touch-controls {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+}
+
+body.is-touch-device #touch-controls.active-touch {
+    display: block;
+}
+
+.touch-btn.pause-btn {
+    position: fixed;
+    top: 72px;
+    left: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 13px;
+    letter-spacing: 1px;
+    border-color: rgba(233, 69, 96, 0.9);
+    color: #fda4af;
+    background: rgba(15, 23, 42, 0.76);
+    pointer-events: auto;
+}
+
+.touch-btn.pause-btn:active {
+    background: rgba(233, 69, 96, 0.35);
+}
+
+#joystick-zone {
+    position: fixed;
+    left: 34px;
+    bottom: 34px;
+    width: 146px;
+    height: 146px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.65) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 0 18px rgba(0, 255, 255, 0.12);
+    pointer-events: auto;
+    touch-action: none;
+}
+
+#joystick-zone::after {
+    content: "MOVE";
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+}
+
+#joystick-knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 58px;
+    height: 58px;
+    margin-left: -29px;
+    margin-top: -29px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.65), rgba(0, 255, 255, 0.32));
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.35);
+    pointer-events: none;
+    transition: transform 0.04s linear;
+}
+
+/* Right-hand Evade-style action cluster: utility row on top, Slide + big Jump below */
+#touch-cluster {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    pointer-events: none;
+    touch-action: none;
+}
+
+#touch-utility-row {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+#touch-primary-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    pointer-events: auto;
+}
+
+.touch-btn {
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    color: #ffffff;
+    font-family: monospace;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    touch-action: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    transition: transform 0.07s ease, background 0.07s ease;
+}
+
+.touch-btn:active {
+    transform: scale(0.93);
+}
+
+.touch-util-btn {
+    width: 56px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    background: rgba(15, 23, 42, 0.68);
+}
+
+.touch-btn.whistle-btn {
+    border-color: rgba(255, 77, 109, 0.85);
+    color: #ff8fa3;
+}
+.touch-btn.whistle-btn:active {
+    background: rgba(255, 51, 102, 0.35);
+}
+
+.touch-btn.turn-btn {
+    border-color: rgba(217, 70, 239, 0.85);
+    color: #f0abfc;
+}
+.touch-btn.turn-btn:active {
+    background: rgba(217, 70, 239, 0.35);
+}
+
+.touch-btn.view-btn {
+    border-color: rgba(56, 189, 248, 0.85);
+    color: #7dd3fc;
+}
+.touch-btn.view-btn:active {
+    background: rgba(56, 189, 248, 0.35);
+}
+
+.touch-btn.slide-btn {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    border-color: rgba(250, 204, 21, 0.9);
+    color: #fde047;
+    background: rgba(45, 36, 8, 0.72);
+    margin-bottom: 4px;
+}
+.touch-btn.slide-btn:active {
+    background: rgba(250, 204, 21, 0.38);
+}
+
+.touch-btn.jump-btn {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    font-size: 14px;
+    letter-spacing: 1px;
+    border-color: rgba(0, 255, 255, 0.95);
+    color: #00ffff;
+    background: rgba(8, 42, 54, 0.76);
+    box-shadow: 0 0 18px rgba(0, 255, 255, 0.25);
+}
+.touch-btn.jump-btn:active {
+    background: rgba(0, 255, 255, 0.38);
+}
+
+/* Bloody Face Jumpscare Overlay (Backrooms maps only) */
+#jumpscare-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, #3b0000 0%, #090000 85%);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    pointer-events: none;
+}
+
+#jumpscare-overlay.active {
+    display: flex;
+    animation: scareShake 0.08s infinite;
+}
+
+@keyframes scareShake {
+    0% { transform: translate(0, 0) scale(1.03); }
+    25% { transform: translate(-8px, 6px) scale(1.06); }
+    50% { transform: translate(8px, -6px) scale(1.04); }
+    75% { transform: translate(-6px, -4px) scale(1.07); }
+    100% { transform: translate(6px, 4px) scale(1.03); }
+}
+
+#menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 12, 0.97);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+    color: #fff;
+    overflow-y: auto;
+    padding: 18px;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+}
+
+.blood-screen {
+    background: radial-gradient(circle, rgba(120, 0, 0, 0.88) 0%, rgba(10, 2, 2, 0.99) 85%) !important;
+    box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.6);
+    border: 8px solid #4a0000;
+}
+
+.menu-btn {
+    padding: 10px 18px;
+    background: #222738;
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    font-size: clamp(12px, 1.4vw, 15px);
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 4px;
+    letter-spacing: 0.8px;
+    transition: all 0.1s ease;
+}
+
+.menu-btn:hover {
+    transform: scale(1.04);
+    background: #00ffff;
+    color: #000;
+}
+
+.resume-btn {
+    border-color: #00ff66;
+    color: #00ff66;
+    display: none;
+}
+.resume-btn:hover {
+    background: #00ff66;
+    color: #000;
+}
+
+.mode-selector-box {
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+.mode-selector-box select {
+    background: #111;
+    color: #ff3366;
+    border: 1px solid #ff3366;
+    padding: 4px 10px;
+    font-family: monospace;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.insane-checkbox-box {
+    margin-bottom: 10px;
+    background: rgba(255, 51, 102, 0.12);
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #ff3366;
+    color: #ff3366;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.controls-box {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    text-align: left;
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.48;
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.controls-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 6px;
+}
+
+.tab-btn {
+    background: #161b26;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #00ffff;
+    color: #020617;
+    border-color: #00ffff;
+}
+
+.controls-panel {
+    display: none;
+}
+
+.controls-panel.active {
+    display: block;
+}
+
+.gp-menu-focus {
+    outline: 3px solid #ffffff !important;
+    box-shadow: 0 0 18px rgba(0, 255, 255, 0.95) !important;
+    transform: scale(1.05);
+}
+
+.menu-footer {
+    margin-top: 12px;
+    color: #6b7280;
+    opacity: 0.7;
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+}
