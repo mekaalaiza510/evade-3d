@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Evade 3D</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="./script.js" defer></script>
+</head>
+
+<body>
+
+    <div id="hud">
+        <div class="hud-card">
+            <div><strong>MODE:</strong> <span id="modename">SURVIVAL</span> <span id="phase-ui"
+                    style="color:#00ff66;">[<span id="phasename">SLOW</span>]</span></div>
+            <div><strong>TIME:</strong> <span id="timer">0.00</span>s | <strong>BEST:</strong> <span
+                    id="highscore">0.00</span>s</div>
+        </div>
+        <div class="hud-card" id="level-bang-hud">
+            EXIT CLOSING IN: <span id="exit-countdown">36.00</span>s
+        </div>
+        <div class="hud-card" id="gamepad-badge"></div>
+        <div id="state-display">STANCE: STANDING | VIEW: FIRST PERSON | SLIDE: READY</div>
+    </div>
+
+    <div id="exit-status-toast"></div>
+
+    <div id="jumpscare-overlay">
+        <canvas id="bloody-face-canvas" width="320" height="320"></canvas>
+    </div>
+
+    <div id="menu-overlay">
+        <div class="menu-box">
+            <div class="menu-header">
+                <h1>EVADE 3D</h1>
+                <button type="button" id="btn-resume" class="gp-focusable" style="display:none;">Resume</button>
+            </div>
+
+            <div id="pause-map-warning">Game paused. Choosing a map starts a new round.</div>
+            <div id="death-stats"></div>
+
+            <div class="settings-row">
+                <select id="gamemode-select" class="gp-focusable" aria-label="Game Mode">
+                    <option value="survival">Survival (210s Phases)</option>
+                    <option value="infinite">Infinite (Scaling Speed)</option>
+                </select>
+
+                <div id="insane-box" class="toggle-box gp-focusable" role="checkbox" aria-checked="false" tabindex="0">
+                    <input type="checkbox" id="insane-toggle" />
+                    <label for="insane-toggle" style="cursor:pointer;">Insane Mode (3 Nextbots / Backrooms)</label>
+                </div>
+            </div>
+
+            <div class="map-grid">
+                <button type="button" id="btn-construct" class="gp-focusable">Construct</button>
+                <button type="button" id="btn-office" class="gp-focusable">Office</button>
+                <button type="button" id="btn-hotel" class="gp-focusable">Hotel</button>
+                <button type="button" id="btn-backrooms" class="gp-focusable">Backrooms</button>
+                <button type="button" id="btn-level-bang" class="gp-focusable">Level !</button>
+            </div>
+
+            <div class="controls-tabs">
+                <button type="button" class="tab-btn active" data-tab="panel-kbm">Keyboard &amp; Mouse</button>
+                <button type="button" class="tab-btn" data-tab="panel-touch">Touchscreen</button>
+                <button type="button" class="tab-btn" data-tab="panel-controller">Controller</button>
+            </div>
+
+            <div id="panel-kbm" class="controls-panel active">
+                <strong>WASD / Arrows:</strong> Move &nbsp;|&nbsp;
+                <strong>Mouse:</strong> Look &nbsp;|&nbsp;
+                <strong>Space:</strong> Jump &amp; Double Jump &nbsp;|&nbsp;
+                <strong>W + Shift/CapsLock:</strong> Slide &nbsp;|&nbsp;
+                <strong>Shift (Hold) / CapsLock:</strong> Crouch &nbsp;|&nbsp;
+                <strong>R:</strong> Quick Turn &nbsp;|&nbsp;
+                <strong>T:</strong> Whistle &nbsp;|&nbsp;
+                <strong>G:</strong> Emote &nbsp;|&nbsp;
+                <strong>V:</strong> Toggle 1st/3rd Person &nbsp;|&nbsp;
+                <strong>Esc:</strong> Pause
+            </div>
+
+            <div id="panel-touch" class="controls-panel">
+                <strong>Left Joystick:</strong> Move &nbsp;|&nbsp;
+                <strong>Right Side Drag:</strong> Look &nbsp;|&nbsp;
+                <strong>JUMP:</strong> Jump &amp; Double Jump &nbsp;|&nbsp;
+                <strong>CROUCH (Hold):</strong> Crouch, or <strong>Move Forward + CROUCH</strong> to Slide &nbsp;|&nbsp;
+                <strong>TURN:</strong> Quick Turn &nbsp;|&nbsp;
+                <strong>WHISTLE:</strong> Alert Nextbots &nbsp;|&nbsp;
+                <strong>VIEW:</strong> Toggle 1st/3rd Person
+            </div>
+
+            <div id="panel-controller" class="controls-panel">
+                <strong>Left Stick / D-Pad:</strong> Move &nbsp;|&nbsp;
+                <strong>Right Stick:</strong> Look &nbsp;|&nbsp;
+                <strong>A / B (Buttons 0/1):</strong> Jump &amp; Double Jump &nbsp;|&nbsp;
+                <strong>Move Forward + LT/RT (Buttons 6/7):</strong> Slide &nbsp;|&nbsp;
+                <strong>LT / RT (Hold):</strong> Crouch &nbsp;|&nbsp;
+                <strong>LB / RB (Buttons 4/5):</strong> Quick Turn &nbsp;|&nbsp;
+                <strong>X (Button 2):</strong> Whistle &nbsp;|&nbsp;
+                <strong>Y (Button 3):</strong> Emote &nbsp;|&nbsp;
+                <strong>Select/Thumbstick (Buttons 8/11):</strong> Toggle 1st/3rd Person &nbsp;|&nbsp;
+                <strong>Start/Home (Buttons 9/16/17):</strong> Pause
+            </div>
+        </div>
+    </div>
+
+    <div id="touch-controls">
+        <button type="button" id="btn-touch-pause">PAUSE</button>
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
+        </div>
+        <div id="touch-cluster">
+            <button type="button" class="touch-btn jump-btn" id="btn-touch-jump">JUMP</button>
+            <button type="button" class="touch-btn crouch-btn" id="btn-touch-slide">CROUCH</button>
+            <button type="button" class="touch-btn" id="btn-touch-turn">TURN</button>
+            <button type="button" class="touch-btn" id="btn-touch-whistle">WHISTLE</button>
+            <button type="button" class="touch-btn" id="btn-touch-view">VIEW</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
